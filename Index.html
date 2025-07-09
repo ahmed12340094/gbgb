@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أكمل السطر - لعبة الثقافة والذكاء</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --island1: #3498db;
+            --island2: #2ecc71;
+            --island3: #e74c3c;
+            --island4: #9b59b6;
+            --island5: #f1c40f;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: var(--light);
+            min-height: 100vh;
+            padding-bottom: 40px;
+            background-attachment: fixed;
+        }
+        
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* شريط التقدم */
+        .progress-bar {
+            background: rgba(255,255,255,0.1);
+            height: 8px;
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 600px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 30%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        /* شاشة الجزر الرئيسية */
+        .islands-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .island-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .island-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .island-header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .island-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .island-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .island-progress {
+            width: 90%;
+            height: 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+        
+        .island-progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .island-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px 20px;
+            font-size: 0.9rem;
+        }
+        
+        .play-btn {
+            display: block;
+            width: 90%;
+            margin: 15px auto;
+            padding: 12px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .play-btn:hover {
+            background: #27ae60;
+            transform: scale(1.05);
+        }
+        
+        .play-btn.locked {
+            background: var(--dark);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        /* شاشة اللعب */
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .clue-container {
+            background: rgba(0,0,0,0.2);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+            font-size: 1.8rem;
+            line-height: 1.6;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .clue-word {
+            display: inline-block;
+            color: var(--accent);
+            border-bottom: 3px dashed var(--accent);
+            margin: 0 5px;
+            min-width: 100px;
+        }
+        
+        .hint-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+        
+        .answer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .answer-input {
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.2);
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .check-btn {
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .check-btn:hover {
+            background: #2980b9;
+        }
+        
+        .result-message {
+            text-align: center;
+            font-size: 1.3rem;
+            min-height: 40px;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .result-message.success {
+            background: rgba(46, 204, 113, 0.2);
+            display: block;
+        }
+        
+        .result-message.error {
+            background: rgba(231, 76, 60, 0.2);
+            display: block;
+        }
+        
+        .game-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .nav-btn {
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: var(--primary);
+        }
+        
+        /* شاشة المستويات */
+        .levels-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .level-btn {
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .level-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary);
+        }
+        
+        .level-btn.completed {
+            background: rgba(46, 204, 113, 0.3);
+            border-color: var(--success);
+        }
+        
+        .level-btn.current {
+            background: var(--accent);
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* فوتر */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            transform: translateY(-5px);
+            background: var(--primary);
+        }
+        
+        .copyright {
+            opacity: 0.7;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* التصميم للجوال */
+        @media (max-width: 768px) {
+            .islands-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .clue-container {
+                font-size: 1.4rem;
+                min-height: 150px;
+                padding: 20px;
+            }
+            
+            .levels-container {
+                grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">أكمل <span>السطر</span></div>
+            <p class="tagline">لعبة الثقافة والذكاء التي تجمع بين المتعة والتحدي!</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="global-progress"></div>
+            </div>
+        </header>
+        
+        <main id="main-content">
+            <!-- محتوى الجزر سيعرض هنا ديناميكيًا -->
+        </main>
+        
+        <footer>
+            <h3>تواصل معنا</h3>
+            <p>تابعنا وشاركنا اقتراحاتك وأفكارك على:</p>
+            <div class="social-links">
+                <a href="https://t.me/hoopis_6" class="social-link" target="_blank">
+                    <i class="fab fa-telegram"></i>
+                </a>
+                <a href="https://instagram.com/_92vt" class="social-link" target="_blank">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+            <div class="copyright">
+                &copy; 2023 أكمل السطر. جميع الحقوق محفوظة.
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // بيانات اللعبة
+        const gameData = {
+            islands: [
+                {
+                    id: 1,
+                    name: "جزيرة الأمثال",
+                    icon: "fa-book",
+                    color: "--island1",
+                    levels: 100,
+                    completed: 25,
+                    currentLevel: 26
+                },
+                {
+                    id: 2,
+                    name: "جزيرة الشعر",
+                    icon: "fa-pen-nib",
+                    color: "--island2",
+                    levels: 100,
+                    completed: 15,
+                    currentLevel: 16
+                },
+                {
+                    id: 3,
+                    name: "جزيرة الحكم",
+                    icon: "fa-lightbulb",
+                    color: "--island3",
+                    levels: 100,
+                    completed: 5,
+                    currentLevel: 6
+                },
+                {
+                    id: 4,
+                    name: "جزيرة الألغاز",
+                    icon: "fa-puzzle-piece",
+                    color: "--island4",
+                    levels: 100,
+                    completed: 0,
+                    currentLevel: 1,
+                    locked: true
+                },
+                {
+                    id: 5,
+                    name: "جزيرة التراث",
+                    icon: "fa-landmark",
+                    color: "--island5",
+                    levels: 100,
+                    completed: 0,
+                    currentLevel: 1,
+                    locked: true
+                }
+            ],
+            currentIsland: null,
+            currentLevel: null,
+            clues: [
+                {
+                    clue: "من جد وجد ومن زرع ...",
+                    answer: "حصد",
+                    hint: "كلمة تتعلق بالنتيجة"
+                },
+                {
+                    clue: "إن غداً لناظره ...",
+                    answer: "قريب",
+                    hint: "كلمة تعني قرب الحدث"
+                },
+                {
+                    clue: "لا تؤجل عمل اليوم إلى ...",
+                    answer: "الغد",
+                    hint: "الوقت الذي يأتي بعد اليوم"
+                },
+                {
+                    clue: "رب صدفة خير من ...",
+                    answer: "ألف ميعاد",
+                    hint: "مقارنة بين المصادفة والترتيب"
+                },
+                {
+                    clue: "في التأني السلامة وفي ... الندامة",
+                    answer: "العجلة",
+                    hint: "ضد التأني"
+                }
+            ]
+        };
+
+        // حساب التقدم العام
+        function calculateGlobalProgress() {
+            const totalLevels = gameData.islands.reduce((sum, island) => sum + island.levels, 0);
+            const completedLevels = gameData.islands.reduce((sum, island) => sum + island.completed, 0);
+            return (completedLevels / totalLevels) * 100;
+        }
+
+        // عرض الجزر الرئيسية
+        function renderIslands() {
+            const globalProgress = calculateGlobalProgress();
+            document.getElementById('global-progress').style.width = `${globalProgress}%`;
+            
+            let islandsHTML = '<h2 style="text-align: center; margin-bottom: 20px;">اختر جزيرتك</h2>';
+            islandsHTML += '<div class="islands-container">';
+            
+            gameData.islands.forEach(island => {
+                const progressPercent = (island.completed / island.levels) * 100;
+                
+                islandsHTML += `
+                <div class="island-card">
+                    <div class="island-header" style="background: linear-gradient(135deg, var(${island.color}), rgba(0,0,0,0.5))">
+                        <div class="island-icon">
+                            <i class="fas ${island.icon}"></i>
+                        </div>
+                        <h3 class="island-title">${island.name}</h3>
+                    </div>
+                    <div class="island-progress">
+                        <div class="island-progress-fill" style="width: ${progressPercent}%; background: var(${island.color})"></div>
+                    </div>
+                    <div class="island-stats">
+                        <span>المستويات: ${island.levels}</span>
+                        <span>المكتملة: ${island.completed}</span>
+                    </div>
+                    <button class="play-btn ${island.locked ? 'locked' : ''}" onclick="selectIsland(${island.id})">
+                        ${island.locked ? 'مقفل' : 'العب الآن'}
+                    </button>
+                </div>
+                `;
+            });
+            
+            islandsHTML += '</div>';
+            document.getElementById('main-content').innerHTML = islandsHTML;
+        }
+
+        // اختيار جزيرة
+        function selectIsland(islandId) {
+            const island = gameData.islands.find(i => i.id === islandId);
+            if (island.locked) return;
+            
+            gameData.currentIsland = island;
+            renderLevels();
+        }
+
+        // عرض مستويات الجزيرة
+        function renderLevels() {
+            let levelsHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <button class="nav-btn" onclick="renderIslands()">
+                        <i class="fas fa-arrow-left"></i> العودة للجزر
+                    </button>
+                    <h2>${gameData.currentIsland.name}</h2>
+                    <div></div>
+                </div>
+                <p style="text-align: center; margin-bottom: 20px; opacity: 0.8;">
+                    اختر مستوى لبدء التحدي
+                </p>
+            `;
+            
+            levelsHTML += '<div class="levels-container">';
+            
+            for (let i = 1; i <= gameData.currentIsland.levels; i++) {
+                let statusClass = '';
+                if (i <= gameData.currentIsland.completed) {
+                    statusClass = 'completed';
+                } else if (i === gameData.currentIsland.currentLevel) {
+                    statusClass = 'current';
+                }
+                
+                levelsHTML += `
+                    <div class="level-btn ${statusClass}" onclick="selectLevel(${i})">
+                        ${i}
+                    </div>
+                `;
+            }
+            
+            levelsHTML += '</div>';
+            document.getElementById('main-content').innerHTML = levelsHTML;
+        }
+
+        // اختيار مستوى
+        function selectLevel(levelNumber) {
+            gameData.currentLevel = levelNumber;
+            renderGame();
+        }
+
+        // عرض شاشة اللعب
+        function renderGame() {
+            const clueIndex = (gameData.currentLevel - 1) % gameData.clues.length;
+            const clue = gameData.clues[clueIndex];
+            
+            const gameHTML = `
+                <div class="game-container">
+                    <div class="level-info">
+                        <div>
+                            <h3>${gameData.currentIsland.name}</h3>
+                            <p>المستوى: ${gameData.currentLevel}</p>
+                        </div>
+                        <button class="nav-btn" onclick="renderLevels()">
+                            <i class="fas fa-list"></i> المستويات
+                        </button>
+                    </div>
+                    
+                    <div class="clue-container">
+                        ${clue.clue.replace('...', '<span class="clue-word">...</span>')}
+                    </div>
+                    
+                    <div class="hint-box">
+                        <i class="fas fa-lightbulb"></i> تلميح: ${clue.hint}
+                    </div>
+                    
+                    <div class="answer-form">
+                        <input type="text" class="answer-input" id="user-answer" placeholder="اكتب الإجابة هنا..." autocomplete="off">
+                        <button class="check-btn" onclick="checkAnswer()">
+                            <i class="fas fa-check"></i> تحقق
+                        </button>
+                    </div>
+                    
+                    <div class="result-message" id="result-message"></div>
+                    
+                    <div class="game-buttons">
+                        <button class="nav-btn" onclick="renderLevels()">
+                            <i class="fas fa-home"></i> القائمة
+                        </button>
+                        <button class="nav-btn" onclick="skipLevel()">
+                            تخطي <i class="fas fa-forward"></i>
+                        </button>
+                        <button class="nav-btn" onclick="nextLevel()" style="display: none;" id="next-btn">
+                            التالي <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('main-content').innerHTML = gameHTML;
+            document.getElementById('user-answer').focus();
+        }
+
+        // التحقق من الإجابة
+        function checkAnswer() {
+            const userAnswer = document.getElementById('user-answer').value.trim().toLowerCase();
+            const clueIndex = (gameData.currentLevel - 1) % gameData.clues.length;
+            const correctAnswer = gameData.clues[clueIndex].answer.toLowerCase();
+            
+            const resultElement = document.getElementById('result-message');
+            const nextButton = document.getElementById('next-btn');
+            
+            if (userAnswer === correctAnswer) {
+                resultElement.textContent = 'إجابة صحيحة! أحسنت!';
+                resultElement.className = 'result-message success';
+                nextButton.style.display = 'block';
+                
+                // تحديث التقدم
+                if (gameData.currentLevel === gameData.currentIsland.currentLevel) {
+                    gameData.currentIsland.completed++;
+                    gameData.currentIsland.currentLevel++;
+                }
+            } else {
+                resultElement.textContent = 'إجابة غير صحيحة! حاول مرة أخرى.';
+                resultElement.className = 'result-message error';
+            }
+            
+            resultElement.style.display = 'block';
+        }
+
+        // التقدم للمستوى التالي
+        function nextLevel() {
+            if (gameData.currentLevel < gameData.currentIsland.levels) {
+                gameData.currentLevel++;
+                renderGame();
+            } else {
+                // إذا كان آخر مستوى
+                renderLevels();
+            }
+        }
+
+        // تخطي المستوى
+        function skipLevel() {
+            if (gameData.currentLevel < gameData.currentIsland.levels) {
+                gameData.currentLevel++;
+                renderGame();
+            } else {
+                // إذا كان آخر مستوى
+                renderLevels();
+            }
+        }
+
+        // بدء التطبيق بعرض الجزر
+        window.onload = renderIslands;
+    </script>
+</body>
+</html>
